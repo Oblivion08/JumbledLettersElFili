@@ -99,15 +99,18 @@ button:active{
   margin:15px 0;
 }
 .jumble{
-  font-size:clamp(22px,4vw,34px);
-  letter-spacing:8px;
+  font-size:clamp(16px,5vw,30px);
+  letter-spacing:clamp(2px,1.4vw,8px);
   font-weight:900;
   color:#5a2a10;
   background:repeating-linear-gradient(45deg,#fff3bf,#fff3bf 10px,#ffe69c 10px,#ffe69c 20px);
-  padding:17px;
+  padding:15px;
   border-radius:16px;
   text-align:center;
   border:2px dashed #d5a100;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  line-height:1.35;
 }
 input{
   width:100%;
@@ -134,6 +137,16 @@ input{
   text-align:center;
   font-size:24px;
 }
+
+@media(max-width:520px){
+  main{padding:10px}
+  .card{padding:15px;margin:12px 0;border-radius:18px}
+  header{padding:28px 12px}
+  .jumble{font-size:18px;letter-spacing:2px;padding:12px}
+  button{width:100%;margin:6px 0}
+  input{font-size:16px}
+}
+
 </style>
 </head>
 
@@ -187,7 +200,7 @@ input{
 const questions = [
   {
     hint:"Ang paghahari ng kasakiman; pamagat ng nobela ni Dr. Jose Rizal.",
-    letters:"LEFILIUSBTEMOSIR",
+    letters:"L E F I L I U S B T E M O S I R",
     answer:"EL FILIBUSTERISMO"
   },
   {
@@ -207,7 +220,7 @@ const questions = [
   },
   {
     hint:"Uri ng nobela tungkol sa pamamahala, kapangyarihan, katiwalian, karapatan, kalayaan, at lipunan.",
-    letters:"NOBELANG PULITIKAL",
+    letters:"G A N L E B O N   T I P U L I K A L",
     answer:"NOBELANG PULITIKAL"
   }
 ];
