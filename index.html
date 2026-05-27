@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fil">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jumbled Letters Game: El Filibusterismo</title>
+<style>
+:root{
+  --maroon:#721536;
+  --gold:#f7c948;
+  --cream:#fff7df;
+  --paper:#fffdf7;
+  --green:#1fa463;
+  --red:#d94a4a;
+  --ink:#2b241f;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Trebuchet MS", Arial, sans-serif;
+  background:linear-gradient(135deg,#fff7df,#ffe1c7,#ffdbe8);
+  color:var(--ink);
+}
+header{
+  background:linear-gradient(135deg,var(--maroon),#b23a4b);
+  color:white;
+  text-align:center;
+  padding:35px 18px;
+  border-bottom:8px solid var(--gold);
+}
+header h1{
+  margin:0;
+  font-size:clamp(30px,5vw,54px);
+  text-shadow:0 4px 0 #0003;
+}
+header p{font-size:18px;margin:8px 0 0}
+main{max-width:960px;margin:auto;padding:20px}
+.card{
+  background:rgba(255,253,247,.96);
+  border:2px solid #ecd59d;
+  border-radius:24px;
+  padding:22px;
+  margin:18px 0;
+  box-shadow:0 12px 28px #72153626;
+}
+.hub{
+  text-align:center;
+}
+.badge{
+  display:inline-block;
+  background:var(--gold);
+  color:#4a2600;
+  padding:8px 14px;
+  border-radius:999px;
+  font-weight:bold;
+}
+.scoreBox{
+  background:#fff1bd;
+  border:3px solid var(--gold);
+  border-radius:20px;
+  padding:16px;
+  margin-top:15px;
+  font-size:22px;
+  font-weight:bold;
+}
+.score{
+  font-size:38px;
+  color:var(--maroon);
+}
+button{
+  border:0;
+  border-radius:999px;
+  padding:13px 20px;
+  cursor:pointer;
+  font-weight:900;
+  margin:7px;
+  color:white;
+  background:linear-gradient(135deg,var(--maroon),#b83b51);
+  box-shadow:0 5px 0 #4b0e23;
+}
+button:active{
+  transform:translateY(3px);
+  box-shadow:0 2px 0 #4b0e23;
+}
+.musicBtn{
+  background:linear-gradient(135deg,#1b5f8c,#2ea3d8);
+  box-shadow:0 5px 0 #16445f;
+}
+.startBtn{
+  font-size:22px;
+  padding:18px 30px;
+}
+.hidden{display:none}
+.qcard{
+  background:#fffaf0;
+  border:2px solid #ead29a;
+  border-radius:18px;
+  padding:18px;
+  margin:15px 0;
+}
+.jumble{
+  font-size:clamp(22px,4vw,34px);
+  letter-spacing:8px;
+  font-weight:900;
+  color:#5a2a10;
+  background:repeating-linear-gradient(45deg,#fff3bf,#fff3bf 10px,#ffe69c 10px,#ffe69c 20px);
+  padding:17px;
+  border-radius:16px;
+  text-align:center;
+  border:2px dashed #d5a100;
+}
+input{
+  width:100%;
+  padding:14px;
+  border:2px solid #d8c49a;
+  border-radius:14px;
+  font-size:17px;
+  margin-top:12px;
+}
+.correct{
+  border-color:var(--green)!important;
+  background:#e7f8ee!important;
+}
+.wrong{
+  border-color:var(--red)!important;
+  background:#ffe7e7!important;
+}
+.feedback{
+  font-weight:900;
+  color:var(--maroon);
+  font-size:20px;
+}
+.result{
+  text-align:center;
+  font-size:24px;
+}
+</style>
+</head>
+
+<body>
+<header>
+  <h1>🔤 Jumbled Letters Game</h1>
+  <p>Paksa: Kaligirang Kasaysayan ng <i>El Filibusterismo</i></p>
+</header>
+
+<main>
+
+<section id="hub" class="card hub">
+  <span class="badge">Filipino 10 Interactive Game</span>
+  <h2>📜 Kahon ng Kasaysayan</h2>
+  <p>Ayusin ang jumbled letters upang mabuo ang mahahalagang salita sa aralin.</p>
+
+  <div class="scoreBox">
+    Kabuuang Iskor: <span class="score"><span id="score">0</span>/5</span>
+    <div id="stars">☆☆☆☆☆</div>
+  </div>
+
+  <br>
+  <button class="startBtn" onclick="startGame()">▶️ Simulan ang Laro</button>
+  <button class="musicBtn" onclick="toggleMusic()">🎵 Play / Pause Music</button>
+</section>
+
+<section id="game" class="card hidden">
+  <h2>Gawain: Ayusin ang mga Letra</h2>
+  <p><b>Panuto:</b> Basahin ang hint, ayusin ang jumbled letters, at i-type ang tamang sagot.</p>
+
+  <div id="jumbleArea"></div>
+
+  <button onclick="checkAnswers()">✅ I-check ang Sagot</button>
+  <button onclick="showAnswers()">👀 Ipakita ang Sagot</button>
+  <button onclick="resetGame()">🔄 Ulitin</button>
+  <button onclick="goHome()">🏠 Main Hub</button>
+
+  <p id="feedback" class="feedback"></p>
+</section>
+
+<section id="result" class="card result hidden">
+  <h2>🏆 Resulta ng Laro</h2>
+  <p id="finalMessage"></p>
+  <button onclick="resetGame()">🔄 Maglaro Muli</button>
+  <button onclick="goHome()">🏠 Main Hub</button>
+</section>
+
+</main>
+
+<script>
+const questions = [
+  {
+    hint:"Ang paghahari ng kasakiman; pamagat ng nobela ni Dr. Jose Rizal.",
+    letters:"LEFILIUSBTEMOSIR",
+    answer:"EL FILIBUSTERISMO"
+  },
+  {
+    hint:"Tatlong paring martir: Gomez, Burgos, at Zamora.",
+    letters:"ZABURMGO",
+    answer:"GOMBURZA"
+  },
+  {
+    hint:"Kabiguan, kamalasan, o kapighatian.",
+    letters:"WINASAKA",
+    answer:"KASAWIAN"
+  },
+  {
+    hint:"Pinahihirapan, ginugulo, o inaapi.",
+    letters:"ISIGNUU",
+    answer:"INUUSIG"
+  },
+  {
+    hint:"Uri ng nobela tungkol sa pamamahala, kapangyarihan, katiwalian, karapatan, kalayaan, at lipunan.",
+    letters:"NOBELANG PULITIKAL",
+    answer:"NOBELANG PULITIKAL"
+  }
+];
+
+let score = 0;
+let audioCtx, musicOn=false, musicTimer=null;
+
+function startGame(){
+  document.getElementById("hub").classList.add("hidden");
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+  renderQuestions();
+}
+
+function goHome(){
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("hub").classList.remove("hidden");
+}
+
+function renderQuestions(){
+  const area = document.getElementById("jumbleArea");
+  area.innerHTML = "";
+  questions.forEach((q,i)=>{
+    area.innerHTML += `
+      <div class="qcard">
+        <p><b>${i+1}. Hint:</b> ${q.hint}</p>
+        <div class="jumble">${q.letters}</div>
+        <input id="answer${i}" placeholder="I-type ang sagot dito...">
+      </div>
+    `;
+  });
+}
+
+function normalize(text){
+  return text.toUpperCase().replace(/\s+/g," ").trim();
+}
+
+function checkAnswers(){
+  score = 0;
+  questions.forEach((q,i)=>{
+    const input = document.getElementById("answer"+i);
+    input.classList.remove("correct","wrong");
+
+    if(normalize(input.value) === normalize(q.answer)){
+      input.classList.add("correct");
+      score++;
+    }else{
+      input.classList.add("wrong");
+    }
+  });
+
+  updateScore();
+  playSfx(score >= 3 ? "correct" : "wrong");
+
+  document.getElementById("feedback").textContent =
+    `Nakuha mo ang ${score}/5. ${score === 5 ? "Mahusay! Perfect!" : "Subukan pang pagbutihin!"}`;
+
+  showResult();
+}
+
+function showAnswers(){
+  questions.forEach((q,i)=>{
+    document.getElementById("answer"+i).value = q.answer;
+  });
+}
+
+function updateScore(){
+  document.getElementById("score").textContent = score;
+  document.getElementById("stars").textContent = "★".repeat(score) + "☆".repeat(5-score);
+}
+
+
+// Replace showResult function
+function showResult(){
+  document.getElementById("result").classList.remove("hidden");
+  let message = "";
+
+  if(score === 5){
+    message = "🎉 Binabati kita! Napakahusay mo! Nakuha mo ang PERFECT SCORE na 5/5. Ipinapakita nito na lubos mong naunawaan ang mahahalagang konsepto tungkol sa El Filibusterismo. Ipagpatuloy mo ang iyong kahusayan! 🌟🏆";
+    playSfx("correct");
+  }
+  else if(score >= 3){
+    message = "👏 Magaling! Nakakuha ka ng " + score + "/5. Mahusay ang iyong pagsisikap. Kaunting pagsasanay pa at maaabot mo ang perpektong marka! ⭐";
+  }
+  else{
+    message = "💪 Mabuting pagsubok! Nakakuha ka ng " + score + "/5. Huwag sumuko, basahin muli ang mga pahiwatig at subukan muli. Kaya mo iyan! 📚";
+  }
+
+  document.getElementById("finalMessage").innerHTML = message;
+}
+
+
+function resetGame(){
+  score = 0;
+  updateScore();
+  document.getElementById("feedback").textContent = "";
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+  document.getElementById("hub").classList.add("hidden");
+  renderQuestions();
+}
+
+function initAudio(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function tone(freq,dur,type="sine",vol=.05){
+  initAudio();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.value = vol;
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + dur);
+}
+
+function playSfx(kind){
+  if(kind === "correct"){
+    tone(660,.08,"triangle",.06);
+    setTimeout(()=>tone(880,.12,"triangle",.05),90);
+  }else{
+    tone(180,.18,"sawtooth",.035);
+  }
+}
+
+function toggleMusic(){
+  initAudio();
+  musicOn = !musicOn;
+  if(musicOn){
+    let notes=[392,440,494,523,494,440,392,330];
+    let i=0;
+    musicTimer=setInterval(()=>{
+      tone(notes[i%notes.length],.18,"triangle",.025);
+      i++;
+    },260);
+  }else{
+    clearInterval(musicTimer);
+  }
+}
+</script>
+</body>
+</html>
